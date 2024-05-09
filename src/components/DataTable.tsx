@@ -341,7 +341,7 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                                 </Button>
                                 {/* @ts-ignore */}
                                 {allFolders?.map((folder: any) => (
-                                    <div className='flex w-full justify-start '>
+                                    <div className='flex w-full justify-start ' key={folder.id}>
                                         <Button variant={'outline'} className='flex gap-2 w-full justify-start text-start' onClick={() => handleMoveFiles(folder?.id)}>
                                             <FolderInput className='w-4 h-4' />
                                             <p>{folder.name!}</p>
