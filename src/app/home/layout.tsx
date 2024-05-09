@@ -3,10 +3,7 @@ import { Inter as FontSans } from "next/font/google"
 
 import Sidebar from "@/components/Sidebar"
 
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
+
 
 export default function RootLayout({ children }:{children: React.ReactNode}) {
   return (

@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import Link from 'next/link';
-import { MoreHorizontal } from 'lucide-react';
+import { File, Folder, FolderInput, Loader2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -35,8 +35,9 @@ import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import MoveFiles from './MoveFiles';
 
-interface DataTableProps {
+interface FolderDataTableProps {
     User: {
         name: string;
     } | null;
@@ -45,31 +46,65 @@ interface DataTableProps {
     createdAt: Date;
     updatedAt: Date;
     userId: string | null;
+    parentFolderId?: string | null;
 }
 
-type dialogStateType = 'RENAME' | 'DELETE' | ''
-const DataTable = ({ data }: { data: DataTableProps[] }) => {
+
+
+interface FileDataTableProps {
+    User: {
+        name: string;
+    } | null;
+    id: string;
+    name: string;
+    url: string;
+    size: string;
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string | null;
+    folderId: string | null;
+}
+
+type dialogStateType = 'RENAME' | 'DELETE' | 'MOVE' | ''
+const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files?: FileDataTableProps[] }) => {
+
+    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps | []>([]) 
+    const getAllFolders = async() => {
+        const res = await axios.get('/api/folder/fetch')
+        setAllFolders(res.data)
+    }
 
     const formatDate = (dateString: Date) => {
         const options: any = { day: "numeric", month: "long", year: 'numeric' };
         const date = new Date(dateString);
         return date.toLocaleDateString("en-US", options);
     };
-
     const [dialogState, setDialogState] = React.useState<dialogStateType>('')
-    const [focusedData, setFocusedData] = React.useState<DataTableProps | null>(null)
+    const [focusedData, setFocusedData] = React.useState<FolderDataTableProps | FileDataTableProps | null>(null)
 
     const [dialog, setDialog] = React.useState(false)
     const [rename, setRename] = React.useState('')
 
     const router = useRouter()
 
+    // this is type guard (Advanced TS)
+    function isFolderData(data: FolderDataTableProps | FileDataTableProps | null): data is FolderDataTableProps {
+        return (data !== null && typeof (data as FileDataTableProps).url === 'undefined');
+    }
+
     const { mutate: handleRename, isLoading: renameLoading } = useMutation({
         mutationFn: async () => {
             const payload = {
                 id: focusedData?.id, newName: rename
             }
-            await axios.post('/api/folder/rename', payload)
+
+            if (isFolderData(focusedData)) {
+                await axios.post('/api/folder/rename', payload)
+            }
+            else {
+                await axios.post('/api/file/rename', payload)
+            }
+
         },
         onError: (error) => {
             if (error instanceof AxiosError) {
@@ -77,24 +112,53 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                     return toast.error('You need to be login to do that.')
                 }
                 if (error.response?.status === 404) {
-                    return toast.error('The folder you are trying to rename is no longer access.')
+                    return toast.error(`The ${focusedData?.name} you are trying to rename is no longer exist.`)
                 }
             }
         },
         onSuccess: () => {
-            toast.success('Folder renamed successfully.')
+            toast.success(`${focusedData?.name} renamed successfully.`)
             router.refresh()
+            setRename('New Folder')
             setDialog(false)
         }
     })
 
 
+    const { mutate: handleMoveFiles } = useMutation(
+        async (folderId?: string | '') => {
+            const payload = {
+                file: focusedData?.id,
+                folder: folderId
+            };
+            await axios.post('/api/file/move', payload);
+        },
+        {
+            onError: (error) => {
+                if (error instanceof AxiosError) {
+                    if (error.response?.status === 401) {
+                        toast.error('You need to login to do that.');
+                    }
+                }
+            },
+            onSuccess: () => {
+                router.refresh();
+                toast.success('File moved successfully.');
+                setDialog(false)
+            }
+        }
+    );
     const { mutate: handleDelete, isLoading: deleteLoading } = useMutation({
         mutationFn: async () => {
             const payload = {
                 id: focusedData?.id,
             }
-            await axios.post('/api/folder/delete', payload)
+            if (isFolderData(focusedData)) {
+                await axios.post('/api/folder/delete', payload)
+            }
+            else {
+                await axios.post('/api/file/delete', payload)
+            }
         },
         onError: (error) => {
             if (error instanceof AxiosError) {
@@ -102,12 +166,12 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                     return toast.error('You need to be login to do that.')
                 }
                 if (error.response?.status === 404) {
-                    return toast.error('The folder does not exist.')
+                    return toast.error(`The ${focusedData?.name} does not exist.`)
                 }
             }
         },
         onSuccess: () => {
-            toast.success('Folder deleted successfully.')
+            toast.success(`${focusedData?.name} deleted successfully.`)
             router.refresh()
             setDialog(false)
         }
@@ -115,7 +179,7 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
 
 
     return (
-        <div>
+        <div className='p-2'>
 
             <section>
                 <Dialog>
@@ -131,10 +195,11 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {data?.map((data) => (
+                            {folders?.map((data) => (
                                 <TableRow key={data.id} >
                                     <TableCell className='cursor-pointer'>
-                                        <Link href={`/home/${data.id}`}>
+                                        <Link href={`/home/folder/${data.id}`} className=' flex gap-2  items-center text-start'>
+                                            <Folder className='h-5 w-5' />
                                             {data.name}
                                         </Link>
 
@@ -147,6 +212,7 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                                         {formatDate(data.updatedAt)}
                                     </TableCell>
                                     <TableCell className="table-cell">
+                                        ---
                                     </TableCell>
                                     <TableCell>
                                         <DropdownMenu>
@@ -174,6 +240,7 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                                                     } >Rename</DialogTrigger>
 
                                                 </DropdownMenuItem>
+
                                                 <DropdownMenuItem>
                                                     <DialogTrigger className='w-full text-left' onClick={
                                                         () => {
@@ -189,9 +256,71 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                                     </TableCell>
                                 </TableRow>
                             ))}
+
+                            {files?.map((data) => (
+                                <TableRow key={data.id} >
+                                    <TableCell className='cursor-pointer'>
+                                        <Link href={data.url} className='flex gap-2 text-start items-center'>
+                                            <File className='h-5 w-5' />
+                                            {data.name}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell className=" sm:table-cell font-normal">
+                                        {data.User?.name}
+                                    </TableCell>
+                                    <TableCell className=" font-normal table-cell  ">
+                                        {formatDate(data.updatedAt)}
+                                    </TableCell>
+                                    <TableCell className="table-cell">
+                                        {data.size}
+
+                                    </TableCell>
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuLabel>{data.name}</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem>
+                                                    <DialogTrigger className='w-full text-left' onClick={() => {
+                                                        setDialogState('RENAME');
+                                                        setDialog(true);
+                                                        setFocusedData(data)
+                                                    }}>Rename</DialogTrigger>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <DialogTrigger className='w-full text-left' onClick={
+                                                        () => {
+                                                            setDialogState('MOVE')
+                                                            setFocusedData(data)
+                                                            setDialog(true)
+                                                            getAllFolders()
+                                                        }
+
+                                                    } >Move</DialogTrigger>
+
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <DialogTrigger className='w-full text-left' onClick={() => {
+                                                        setDialogState('DELETE');
+                                                        setDialog(true);
+                                                        setFocusedData(data)
+                                                    }}>Delete</DialogTrigger>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
-                   { dialog === true && <DialogContent className='max-w-sm'>
+                    {dialog === true && <DialogContent className='max-w-sm'>
                         <DialogHeader>
                             <DialogTitle>{dialogState} {focusedData?.name}</DialogTitle>
                             {dialogState === 'DELETE' && <DialogDescription>Are you surely want to delete?</DialogDescription>}
@@ -201,6 +330,22 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                             <Input type='text' className='w-full' value={rename} onChange={(e) => setRename(e.target.value)} />
                         </div>
                         }
+                        {dialogState === 'MOVE' && (
+  <div className='grid grid-cols-2'>
+    <Button variant={'outline'} className='w-full' onClick={() => handleMoveFiles('')}>
+      Move to home
+    </Button>
+    {allFolders?.map((folder:any) => (
+      <div className='flex w-full justify-start '>
+        <Button variant={'outline'} className='flex gap-2 w-full justify-start text-start' onClick={() => handleMoveFiles(folder?.id)}>
+          <FolderInput className='w-4 h-4' />
+          <p>{folder.name!}</p>
+        </Button>
+      </div>
+    ))}
+  </div>
+)}
+
                         <DialogFooter>
 
 
@@ -217,6 +362,7 @@ const DataTable = ({ data }: { data: DataTableProps[] }) => {
                             }                  </DialogFooter>
                     </DialogContent>}
                 </Dialog>
+
             </section>
         </div>
     )

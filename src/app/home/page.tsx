@@ -1,13 +1,29 @@
 import DataTable from '@/components/DataTable'
+import { Input } from '@/components/ui/input'
 import { db } from '@/lib/db'
 import { getDataFromToken } from '@/lib/hooks/getDataFromToken'
 import React from 'react'
 
 const page = async () => {
   const authUser = await getDataFromToken()
-  const data = await db.folder.findMany({
+  const folders = await db.folder.findMany({
     where: {
-      userId: authUser.id!
+      userId: authUser.id!,
+      parentFolder: null
+    },
+    include: {
+      User: {
+        select: {
+          name: true
+        }
+      }
+    }
+  })
+
+  const files = await db.file.findMany({
+    where: {
+      userId: authUser.id!,
+      Folder: null
     },
     include: {
       User: {
@@ -20,10 +36,9 @@ const page = async () => {
 
   return (
     <div>
-      <h1 className='text-2xl font-semibold'>Welcome to React file manager!</h1>
+      <h1 className='text-2xl font-semibold p-2'>Welcome to React file manager!</h1>
 
-
-     <DataTable data={data}/>
+     <DataTable folders={folders} files={files}/>
     </div>
   )
 }

@@ -74,7 +74,7 @@
       @apply bg-background text-foreground;
     }
   }
-
+/* 
 .file-upload-button {
   cursor: pointer;
   background-color: #e2e8f0; 
@@ -89,4 +89,4 @@
 
 input[type="file"] {
   display: none; 
-}
+} */

@@ -47,7 +47,6 @@ const Auth = () => {
                 name, email, password
             }
             const res = await axios.post('/api/signup', payload);
-            console.log(res)
         }, 
         onError: (error:any) => {
             if(error instanceof AxiosError){
@@ -73,7 +72,6 @@ const Auth = () => {
                 name, email, password
             }
             const res = await axios.post('/api/signin', payload);
-            console.log(res)
         }, 
         onError: (error:any) => {
             if(error instanceof AxiosError){

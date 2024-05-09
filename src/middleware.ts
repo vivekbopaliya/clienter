@@ -30,7 +30,7 @@ export const tokenAuthMiddleware = async(req: any) => {
 };
 
 export const config = {
-  matcher: '/home',
+    matcher: ['/home'],
 };
 
 export default tokenAuthMiddleware;

@@ -1,39 +1,83 @@
-import { db } from "@/lib/db"
-import { getDataFromToken } from "@/lib/hooks/getDataFromToken"
+import { db } from "@/lib/db";
+import { getDataFromToken } from "@/lib/hooks/getDataFromToken";
 
-export async function POST(req:Request) {
-    try {
-        const body = await req.json()
-        const authUser = await getDataFromToken()
+async function deleteFolderAndSubFolders(folderId: string) {
+  try {
+    const folder = await db.folder.findFirst({
+      where: {
+        id: folderId,
+      },
+    });
 
-
-        if(!authUser) {
-            return new Response('Unauthorized.', {status: 401})
-        }
-
-        const folder = await db.folder.findFirst({
-            where: {
-                id: body.id
-            }
-        });
-        
-        if(!folder) {
-            return new Response("Folder doesn't exist.", {status: 404})
-        }
-        const deleteFolder = await db.folder.delete({
-            where: {
-                id: body.id
-            },
-        });
-
-        if(!deleteFolder) {
-            return new Response('Folder could not be deleted.', {status: 500})
-        }
-
-        return new Response('Folder deleted successfully.',  {
-            status: 200
-        })
-    } catch (error:any) {
-        return new Response(error, {status: 500})
+    if (!folder) {
+      console.error("Folder not found:", folderId);
+      return; // No folder found, exit function
     }
+
+    // Delete files inside folder
+    const filesToDeleteInsideFolder = await db.file.findMany({
+      where: {
+        folderId: folder.id,
+      },
+    });
+
+    for (const file of filesToDeleteInsideFolder) {
+      await db.file.delete({
+        where: {
+          id: file.id,
+        },
+      });
+    }
+
+    // Delete subfolders recursively
+    const subFoldersToDelete = await db.folder.findMany({
+      where: {
+        parentFolderId: folder.id,
+      },
+    });
+
+    for (const subFolder of subFoldersToDelete) {
+      await deleteFolderAndSubFolders(subFolder.id);
+    }
+
+    // Finally, delete the folder itself
+    await db.folder.delete({
+      where: {
+        id: folder.id,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting folder and subfolders:", error);
+    throw error; // Re-throw the error for higher-level error handling
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const authUser = await getDataFromToken();
+
+    if (!authUser) {
+      return new Response("Unauthorized.", { status: 401 });
+    }
+
+    const folder = await db.folder.findFirst({
+      where: {
+        id: body.id,
+      },
+    });
+
+    if (!folder) {
+      return new Response("Folder not found.", { status: 404 });
+    }
+
+    await deleteFolderAndSubFolders(folder.id);
+
+    return new Response("Folder and its contents deleted successfully.", {
+      status: 200,
+    });
+  } catch (error) {
+    console.error("Error handling request:", error);
+    return new Response("Internal server error.", { status: 500 });
+  }
 }
