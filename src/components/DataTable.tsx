@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import Link from 'next/link';
-import { File, Folder, FolderInput, Loader2, MoreHorizontal } from 'lucide-react';
+import { File, Folder, FolderInput,  MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
