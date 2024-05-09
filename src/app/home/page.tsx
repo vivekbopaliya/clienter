@@ -35,7 +35,7 @@ const page = async () => {
 
   return (
     <div>
-      <h1 className='text-2xl font-semibold p-2'>Welcome to React file manager!</h1>
+      <h1 className='text-2xl font-semibold p-2 sm:w-fit w-screen   sm:px-0 px-5'>Welcome to React file manager!</h1>
 
      <DataTable folders={folders} files={files}/>
     </div>

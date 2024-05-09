@@ -207,7 +207,7 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
 
                                     </TableCell>
 
-                                    <TableCell className=" sm:table-cell font-normal">
+                                    <TableCell className=" sm:table-cell hidden font-normal">
                                         {data.User?.name}
                                     </TableCell>
                                     <TableCell className=" font-normal table-cell  ">
@@ -269,7 +269,7 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                                             {data.name}
                                         </Link>
                                     </TableCell>
-                                    <TableCell className=" sm:table-cell font-normal">
+                                    <TableCell className=" sm:table-cell hidden font-normal">
                                         {data.User?.name}
                                     </TableCell>
                                     <TableCell className=" font-normal table-cell  ">

@@ -119,8 +119,13 @@ const Sidebar = () => {
             setDialog(false)
         }
     })
+
+    const handleSignOut = () => {
+        route.push('/')
+
+    }
     return (
-        <div className='min-h-full '>
+        <div className='sm:min-h-screen min-h-fit sm:w-fit w-screen flex sm:flex-col  sm:justify-start justify-between  sm:items-start items-center   sm:px-0 px-5'>
             <Dialog>
 
                 <section>
@@ -222,6 +227,9 @@ const Sidebar = () => {
                     }
                 </DialogContent>}
             </Dialog>
+
+            <Button className='my-3' variant={'destructive'} 
+            onClick={handleSignOut}>Sign out</Button>
         </div>
     )
 }
