@@ -1,6 +1,6 @@
 import { uploadImage } from "@/lib/cloudinary/upload"
 import { db } from "@/lib/db"
-import { bytesToKilobytes } from "@/lib/hooks/bytesToKB"
+import { bytesToKilobytes } from "@/lib/helpers/bytesToKB"
 import { getDataFromToken } from "@/lib/hooks/getDataFromToken"
 
 export async function POST(req: Request) {
@@ -56,6 +56,7 @@ export async function POST(req: Request) {
 
         return new Response('File has been uploaded successfully.', { status: 200 })
     } catch (error: any) {
+        console.error('Error uploading file: ', error)
         return new Response(error, { status: 500 })
     }
 }

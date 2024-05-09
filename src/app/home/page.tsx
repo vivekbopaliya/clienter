@@ -1,5 +1,4 @@
 import DataTable from '@/components/DataTable'
-import { Input } from '@/components/ui/input'
 import { db } from '@/lib/db'
 import { getDataFromToken } from '@/lib/hooks/getDataFromToken'
 import React from 'react'

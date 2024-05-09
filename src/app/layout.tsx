@@ -10,22 +10,21 @@ const fontSans = FontSans({
   variable: "--font-sans",
 })
 
-export default function RootLayout({ children }:{children: React.ReactNode}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" >
-    <head />
-    <body
+      <head />
+      <body
         className={cn(
           "min-h-screen bg-[#efefef] tracking-tighter font-sans antialiased",
           fontSans.variable
         )}
       >
-          <Toaster />
-          <QueryProvider>
-        <main className="w-full h-screen ">
-          
-             {children}
-        </main>
+        <Toaster />
+        <QueryProvider>
+          <main className="w-full h-screen ">
+            {children}
+          </main>
         </QueryProvider>
       </body>
     </html>

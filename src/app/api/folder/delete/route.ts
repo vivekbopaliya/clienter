@@ -10,8 +10,8 @@ async function deleteFolderAndSubFolders(folderId: string) {
     });
 
     if (!folder) {
-      console.error("Folder not found:", folderId);
-      return; // No folder found, exit function
+      console.error("Folder not found: ", folderId);
+      return; 
     }
 
     // Delete files inside folder
@@ -29,7 +29,7 @@ async function deleteFolderAndSubFolders(folderId: string) {
       });
     }
 
-    // Delete subfolders recursively
+    // Delete subfolders inside folders
     const subFoldersToDelete = await db.folder.findMany({
       where: {
         parentFolderId: folder.id,
@@ -40,7 +40,7 @@ async function deleteFolderAndSubFolders(folderId: string) {
       await deleteFolderAndSubFolders(subFolder.id);
     }
 
-    // Finally, delete the folder itself
+    // delete the folder itself
     await db.folder.delete({
       where: {
         id: folder.id,
@@ -48,7 +48,7 @@ async function deleteFolderAndSubFolders(folderId: string) {
     });
   } catch (error) {
     console.error("Error deleting folder and subfolders:", error);
-    throw error; // Re-throw the error for higher-level error handling
+    throw error; 
   }
 }
 
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       status: 200,
     });
   } catch (error) {
-    console.error("Error handling request:", error);
+    console.error("Error deleting folder:", error);
     return new Response("Internal server error.", { status: 500 });
   }
 }

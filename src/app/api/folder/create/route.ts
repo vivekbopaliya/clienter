@@ -37,7 +37,7 @@ export async function POST(req:Request) {
             status: 200
         })
     } catch (error:any) {
-        console.log(error)
+        console.error('Error creating folder: ', error)
         return new Response(error, {status: 500})
     }
 }

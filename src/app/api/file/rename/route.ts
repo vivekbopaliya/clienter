@@ -30,13 +30,14 @@ export async function POST(req:Request) {
         });
 
         if(!renameFile) {
-            return new Response('Folder could not be renamed.', {status: 500})
+            return new Response('File could not be renamed.', {status: 500})
         }
 
         return new Response('File renamed successfully.',  {
             status: 200
         })
     } catch (error:any) {
+        console.error('Error renaming file: ', error)
         return new Response(error, {status: 500})
     }
 }

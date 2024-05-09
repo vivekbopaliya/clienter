@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { UserValidation } from "@/lib/validation/user.validation";
+import { UserValidation } from "@/lib/validators/user.validation";
 import { ZodError } from "zod";
 import bcrypt from 'bcrypt';
 import jwt from 'jwt-simple';
@@ -47,7 +47,7 @@ export  async function POST(req:Request) {
         if(error instanceof ZodError) {
             return new Response('Please provid valid data.', {status: 400})
         }
-        console.log(error);
-        return new Response('Something went wrong on server side.', {status: 500})
+        console.error('Error signing up: ', error);
+        return new Response('Internal server error.', {status: 500})
     }
 }

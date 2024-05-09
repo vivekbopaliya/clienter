@@ -37,6 +37,7 @@ export async function POST(req:Request) {
             status: 200
         })
     } catch (error:any) {
+        console.error("Error deleting file: ", error);
         return new Response(error, {status: 500})
     }
 }

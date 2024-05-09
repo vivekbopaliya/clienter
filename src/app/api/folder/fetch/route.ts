@@ -17,6 +17,7 @@ export async function GET(req:Request) {
         const foldersJson = JSON.stringify(folders);
         return new Response(foldersJson, { status: 200 })
     } catch (error:any) {
+        console.error('Error fetching all folder: ', error)
         return new Response(error, {status: 500})
     }
 }

@@ -1,4 +1,3 @@
-import { rejects } from "assert";
 import cloudinary from "./config";
 
 export const uploadImage = async(file:File) => {

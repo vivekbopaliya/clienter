@@ -37,6 +37,7 @@ export async function POST(req:Request) {
             status: 200
         })
     } catch (error:any) {
+        console.error('Error renaming folder: ', error)
         return new Response(error, {status: 500})
     }
 }

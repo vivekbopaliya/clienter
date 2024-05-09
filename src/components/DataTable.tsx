@@ -35,7 +35,8 @@ import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import MoveFiles from './MoveFiles';
+import { formatDate } from '@/lib/helpers/formatData';
+import { isFolderData } from '@/lib/helpers/isFolderData';
 
 interface FolderDataTableProps {
     User: {
@@ -66,19 +67,12 @@ interface FileDataTableProps {
 }
 
 type dialogStateType = 'RENAME' | 'DELETE' | 'MOVE' | ''
+
+
 const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files?: FileDataTableProps[] }) => {
 
-    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps | []>([]) 
-    const getAllFolders = async() => {
-        const res = await axios.get('/api/folder/fetch')
-        setAllFolders(res.data)
-    }
+    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps | []>([])
 
-    const formatDate = (dateString: Date) => {
-        const options: any = { day: "numeric", month: "long", year: 'numeric' };
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", options);
-    };
     const [dialogState, setDialogState] = React.useState<dialogStateType>('')
     const [focusedData, setFocusedData] = React.useState<FolderDataTableProps | FileDataTableProps | null>(null)
 
@@ -87,11 +81,13 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
 
     const router = useRouter()
 
-    // this is type guard (Advanced TS)
-    function isFolderData(data: FolderDataTableProps | FileDataTableProps | null): data is FolderDataTableProps {
-        return (data !== null && typeof (data as FileDataTableProps).url === 'undefined');
+    const getAllFolders = async () => {
+        const res = await axios.get('/api/folder/fetch')
+        setAllFolders(res.data)
     }
 
+
+    // Rename folder or file
     const { mutate: handleRename, isLoading: renameLoading } = useMutation({
         mutationFn: async () => {
             const payload = {
@@ -125,6 +121,7 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
     })
 
 
+    // Move file to diffrent folders
     const { mutate: handleMoveFiles } = useMutation(
         async (folderId?: string | '') => {
             const payload = {
@@ -148,6 +145,9 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
             }
         }
     );
+
+
+    // delete folder or file
     const { mutate: handleDelete, isLoading: deleteLoading } = useMutation({
         mutationFn: async () => {
             const payload = {
@@ -195,6 +195,8 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                             </TableRow>
                         </TableHeader>
                         <TableBody>
+
+                            {/* Folder array */}
                             {folders?.map((data) => (
                                 <TableRow key={data.id} >
                                     <TableCell className='cursor-pointer'>
@@ -257,6 +259,8 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                                 </TableRow>
                             ))}
 
+
+                            {/* File array */}
                             {files?.map((data) => (
                                 <TableRow key={data.id} >
                                     <TableCell className='cursor-pointer'>
@@ -331,20 +335,21 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                         </div>
                         }
                         {dialogState === 'MOVE' && (
-  <div className='grid grid-cols-2'>
-    <Button variant={'outline'} className='w-full' onClick={() => handleMoveFiles('')}>
-      Move to home
-    </Button>
-    {allFolders?.map((folder:any) => (
-      <div className='flex w-full justify-start '>
-        <Button variant={'outline'} className='flex gap-2 w-full justify-start text-start' onClick={() => handleMoveFiles(folder?.id)}>
-          <FolderInput className='w-4 h-4' />
-          <p>{folder.name!}</p>
-        </Button>
-      </div>
-    ))}
-  </div>
-)}
+                            <div className='grid grid-cols-2'>
+                                <Button variant={'outline'} className='w-full' onClick={() => handleMoveFiles('')}>
+                                    Move to home
+                                </Button>
+                                {/* @ts-ignore */}
+                                {allFolders?.map((folder: any) => (
+                                    <div className='flex w-full justify-start '>
+                                        <Button variant={'outline'} className='flex gap-2 w-full justify-start text-start' onClick={() => handleMoveFiles(folder?.id)}>
+                                            <FolderInput className='w-4 h-4' />
+                                            <p>{folder.name!}</p>
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <DialogFooter>
 

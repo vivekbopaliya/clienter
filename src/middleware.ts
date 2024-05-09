@@ -1,4 +1,3 @@
-import jwt from 'jwt-simple';
 import { cookies } from 'next/headers'; 
 import { NextResponse } from 'next/server';
 import * as jose from 'jose'
@@ -6,7 +5,6 @@ import * as jose from 'jose'
 const jwtConfig = {
   secret: new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET),
 }
-
 
 export const tokenAuthMiddleware = async(req: any) => {
   
@@ -16,7 +14,6 @@ export const tokenAuthMiddleware = async(req: any) => {
   if (!token) {
     return NextResponse.redirect(new URL('/', req.url))
   }
-
      
   const decoded = await jose.jwtVerify(token.value, jwtConfig.secret)
 
