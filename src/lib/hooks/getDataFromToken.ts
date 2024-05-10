@@ -1,3 +1,4 @@
+// Extracting user data from cookie
 
 import { cookies } from "next/headers";
 import * as jose from 'jose'

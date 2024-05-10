@@ -1,4 +1,4 @@
-# React file manager
+# Next.js file manager
 
 ## Getting Started
 
@@ -39,4 +39,4 @@ npm run dev
 And you are good to go.
 
 ## Live Demo:
-Check out the live demo and auth error handling of this app [here]('https://drive.google.com/drive/folders/1PKH5ra2OI_TwMfwsVA28ihXHrfSheoSQ?usp=drive_link').
+Check out the live demo and auth error handling of this app [here](https://drive.google.com/drive/folders/1PKH5ra2OI_TwMfwsVA28ihXHrfSheoSQ?usp=drive_link).

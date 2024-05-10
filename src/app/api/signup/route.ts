@@ -10,6 +10,7 @@ export  async function POST(req:Request) {
 
         const {name, email, password} = UserValidation.parse(body);
 
+        // If email is alredy registerd
         const alreadyExists = await db.user.findFirst({
             where: {
                 email: email
@@ -20,12 +21,14 @@ export  async function POST(req:Request) {
             return new Response('Email is already registered, directly login.', {status: 403})
         }
 
+        // Hash passeword
         const hashedPassword = await bcrypt.hash(password, 10)
 
         if(!hashedPassword) {
             return new Response('Password could not be hashed.', {status: 500})
         }
 
+        // Create user
         const createUser = await db.user.create({
             data: {
                  name, email, password:hashedPassword

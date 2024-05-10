@@ -1,3 +1,5 @@
+// Uplaod image on cloudinary
+
 import cloudinary from "./config";
 
 export const uploadImage = async(file:File) => {

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
             })
         }
         else {
-
+            // Move the file to home page if there is no folderId given
             await db.file.update({
                 where: {
                     id: body.file

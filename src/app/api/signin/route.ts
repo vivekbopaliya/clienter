@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import bcrypt from 'bcrypt';
 import jwt from 'jwt-simple';
 import { cookies } from 'next/headers'
-import { setCookie } from "cookies-next";
 
 export  async function POST(req:Request) {
     try {
@@ -13,6 +12,7 @@ export  async function POST(req:Request) {
 
         const { email, password } = UserValidation.parse(body);
 
+        // If email has been registered 
         const user = await db.user.findUnique({
             where: {
                 email: email
@@ -23,6 +23,7 @@ export  async function POST(req:Request) {
             return new Response('Email is not registered, sign up first.', {status: 403})
         }
 
+        // Check password
         const isValidPassword = await bcrypt.compare(password, user.password)
 
         if(!isValidPassword) {
@@ -35,8 +36,11 @@ export  async function POST(req:Request) {
           
         const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET!; 
         
+        // set up jwt token
         const token = jwt.encode(payload, secretKey);
         
+
+        // Store it in Cookies
          cookies().set({
             name: 'token',
             value: token,

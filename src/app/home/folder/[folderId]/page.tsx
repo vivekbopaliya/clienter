@@ -10,7 +10,7 @@ const page = async ({ params }: {
     }
 }) => {
 
-
+    // Fetching current folder based on params
     const folder = await db.folder.findFirst({
         where: {
             id: params.folderId
@@ -18,6 +18,7 @@ const page = async ({ params }: {
 
     })
 
+    // Fetching all the subfolders of current folder
     const childFolders = await db.folder.findMany({
         where: {
             parentFolderId: folder?.id
@@ -31,6 +32,7 @@ const page = async ({ params }: {
         }
     })
 
+    // Fetching all the files of current folder
     const files = await db.file.findMany({
         where: {
             folderId: folder?.id

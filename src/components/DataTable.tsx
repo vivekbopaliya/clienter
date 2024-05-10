@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import Link from 'next/link';
-import { File, Folder, FolderInput,  Loader2,  MoreHorizontal } from 'lucide-react';
+import { File, Folder, FolderInput, Loader2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -71,22 +71,27 @@ type dialogStateType = 'RENAME' | 'DELETE' | 'MOVE' | ''
 
 const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files?: FileDataTableProps[] }) => {
 
-    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps[] | []>([])
+    // To open and close dialog box
+    const [dialog, setDialog] = React.useState(false)
 
+    // To determine which dropdown option is clicked
     const [dialogState, setDialogState] = React.useState<dialogStateType>('')
+    
+    // Keeping track of data for the currently opened dialog box.
     const [focusedData, setFocusedData] = React.useState<FolderDataTableProps | FileDataTableProps | null>(null)
 
-    const [dialog, setDialog] = React.useState(false)
+    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps[] | []>([])
+
     const [rename, setRename] = React.useState('')
 
     const router = useRouter()
 
- 
 
-    const {mutate: getAllFolders, isLoading: FoldersLoading} = useMutation({
-        mutationFn: async() => {
-        const res = await axios.get('/api/folder/fetch')
-        setAllFolders(res.data)
+    // Get all folders data for moving files
+    const { mutate: getAllFolders, isLoading: FoldersLoading } = useMutation({
+        mutationFn: async () => {
+            const res = await axios.get('/api/folder/fetch')
+            setAllFolders(res.data)
         }
     })
 
@@ -265,10 +270,10 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                             {files?.map((data) => (
                                 <TableRow key={data.id} >
                                     <TableCell className='cursor-pointer'>
-                                        <Link href={data.url} className='flex gap-2 text-start items-center'>
+                                        <a href={data.url} className='flex gap-2 text-start items-center'>
                                             <File className='h-5 w-5' />
                                             {data.name}
-                                        </Link>
+                                        </a>
                                     </TableCell>
                                     <TableCell className=" sm:table-cell hidden font-normal">
                                         {data.User?.name}
@@ -340,7 +345,7 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                                 {!FoldersLoading && <Button variant={'outline'} className='w-full' onClick={() => handleMoveFiles('')}>
                                     Move to home
                                 </Button>}
-                                {FoldersLoading && <Loader2 className='animate-spin h-6 w-6'/>}
+                                {FoldersLoading && <Loader2 className='animate-spin h-6 w-6' />}
                                 {allFolders?.map((folder: any) => (
                                     <div className='flex w-full justify-start ' key={folder.id}>
                                         <Button variant={'outline'} className='flex gap-2 w-full justify-start text-start' onClick={() => handleMoveFiles(folder?.id)}>
@@ -369,7 +374,7 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                     </DialogContent>}
                 </Dialog>
 
-            {(folders?.length === 0 && files?.length ===0 ) && <h2 className='p-5 flex justify-center items-center'>There is no file or folder here.</h2>}
+                {(folders?.length === 0 && files?.length === 0) && <h2 className='p-5 flex justify-center items-center'>There is no file or folder here.</h2>}
 
 
             </section>

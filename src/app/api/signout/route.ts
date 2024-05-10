@@ -9,6 +9,8 @@ export async function POST(req: Request) {
         if (!authUser) {
             return new Response('You are not logged in, sign in first.', { status: 401 })
         }
+
+        // Delete cookie too
         cookies().delete('token')
         return new Response('User has been signed out successfully.', { status: 200 })
     } catch (error: any) {

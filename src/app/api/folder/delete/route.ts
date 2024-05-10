@@ -40,7 +40,7 @@ async function deleteFolderAndSubFolders(folderId: string) {
       await deleteFolderAndSubFolders(subFolder.id);
     }
 
-    // delete the folder itself
+    // eventually delete the folder itself
     await db.folder.delete({
       where: {
         id: folder.id,

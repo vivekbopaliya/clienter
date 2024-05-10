@@ -1,3 +1,5 @@
+// Delete image from cloudinary 
+
 import cloudinary from "./config";
 
 export const deleteImage = async (public_id: string) => {

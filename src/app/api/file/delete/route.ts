@@ -27,6 +27,7 @@ export async function POST(req:Request) {
             },
         });
         
+        // delete file from cloudinary too
         await deleteImage(file.public_id!)
         if(!deletefile) {
             return new Response('file could not be deleted.', {status: 500})

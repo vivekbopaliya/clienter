@@ -6,6 +6,8 @@ import React from 'react'
 
 const page = async () => {
   const authUser = await getDataFromToken()
+
+  // Fetching only the non-parent folders 
   const folders = await db.folder.findMany({
     where: {
       userId: authUser.id!,
@@ -20,6 +22,7 @@ const page = async () => {
     }
   })
 
+  // Fetching only files that are located on the home page, not within any folder.
   const files = await db.file.findMany({
     where: {
       userId: authUser.id!,
@@ -38,7 +41,9 @@ const page = async () => {
     <div>
       <h1 className='text-2xl font-semibold p-2'>Welcome to React file manager!</h1>
 
-     <DataTable folders={folders} files={files}/>
+
+      {/* This component handles all the file-folder functionality(rename, move, delete) except for creating */}
+      <DataTable folders={folders} files={files} />
     </div>
   )
 }

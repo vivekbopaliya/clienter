@@ -7,7 +7,6 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -31,23 +30,29 @@ type DialogStateTypes = 'Folder' | 'File' | ''
 
 const Sidebar = () => {
 
+    // To open and close dialog box
     const [dialog, setDialog] = React.useState<boolean>(false)
+
+    // Keeping track of currently opened dialog box
     const [dialogState, setDialogState] = React.useState<DialogStateTypes>('')
+
     const [folder, setFolder] = React.useState<string>('Untitled Folder')
+
     const [file, setFile] = React.useState<File | null>(null)
 
     const route = useRouter()
-    
+
     const pathname = usePathname()
 
-    // folder id for sub folders
+    // Extracting the folder ID for subfolders from the current URL path
     let folderId = pathname.split('/').pop();
 
+    // If the current page is the home page, make it empty 
     if (folderId === 'home') {
-        folderId = ''
+        folderId = '';
     }
-    
-    
+
+
     // file selection
     const handleFileChange = (e: any) => {
         if (e.target.files[0]) {
@@ -120,22 +125,26 @@ const Sidebar = () => {
         }
     })
 
-  const {mutate: handleSignOut, isLoading:SignOutLoading} = useMutation({
-    mutationFn: async() => {
-        await axios.post('/api/signout')
-    },
-    onError: (error:any) => {
-        if(error instanceof AxiosError) {
-            if(error.response?.status === 401){
-                return toast.error('You are not logged in.')
+
+    // Signing out
+    const { mutate: handleSignOut, isLoading: SignOutLoading } = useMutation({
+        mutationFn: async () => {
+            await axios.post('/api/signout')
+        },
+        onError: (error: any) => {
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 401) {
+                    return toast.error('You are not logged in.')
+                }
+                return toast.error('You could not sign out, please try again.')
             }
-            return toast.error('You could not sign out, please try again.')
+        }, onSuccess: () => {
+            route.push('/')
+            toast.success('You are signed out.')
         }
-    },onSuccess: () => {
-        route.push('/')
-        toast.success('You are signed out.')
-    }
-  })
+    })
+
+
     return (
         <div className='sm:h-screen min-h-fit sm:w-fit w-screen flex sm:flex-col  sm:justify-start justify-between  sm:items-start items-center sm:gap-2 gap-0  sm:px-0 px-5'>
             <Dialog>

@@ -30,7 +30,7 @@ const Auth = () => {
 
     const route = useRouter()
 
-
+    // To toggle between signup and signin page
     const toggleAuth = () => {
         if (auth === 'REGISTER') {
             setAuth('LOGIN')
@@ -39,6 +39,7 @@ const Auth = () => {
         }
     }
 
+    // Handle Signing up
     const { mutate: handleSignUp, isLoading } = useMutation({
         mutationFn: async () => {
             const payload: UserType = {
@@ -64,6 +65,8 @@ const Auth = () => {
         }
     })
 
+
+    // Handle Signing in
     const { mutate: handleSignIn, isLoading: SignInLoader } = useMutation({
         mutationFn: async () => {
             const payload: UserType = {
@@ -92,7 +95,6 @@ const Auth = () => {
         }
     })
     return (
-
 
         <div>
             <Card className="w-[350px] ">

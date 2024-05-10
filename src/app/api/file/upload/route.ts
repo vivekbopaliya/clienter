@@ -5,7 +5,7 @@ import { getDataFromToken } from "@/lib/hooks/getDataFromToken"
 
 export async function POST(req: Request) {
     try {
-        const authUser = await getDataFromToken()
+        const authUser:any = await getDataFromToken()
 
         if (!authUser) {
             return new Response('Unauthorized.', { status: 401 })
@@ -14,25 +14,26 @@ export async function POST(req: Request) {
         const formData = await req.formData()
 
         const file: any = formData.get('file')
-        const folderId = formData.get('folderId')
+        const folderId:any = formData.get('folderId')
 
+        // Bytes to KB conversion
         const KBFormat = bytesToKilobytes(file.size)
 
         if (!file) {
             return new Response('Please provide a file.', { status: 400 })
         }
 
+        // Upload image on cloudinary and get public url
         const cloudinary: any = await uploadImage(file)
 
-        console.log(cloudinary)
         if (!folderId) {
+            // Create folder on home page if there is no folderId given
             await db.file.create({
                 data: {
                     name: file.name,
                     size: KBFormat,
                     url: cloudinary.secure_url,
                     public_id: cloudinary.url,
-                    // @ts-ignore
                     userId: authUser.id
                 }
             })
@@ -45,9 +46,7 @@ export async function POST(req: Request) {
                     size: KBFormat,
                     url: cloudinary.secure_url,
                     public_id: cloudinary.url,
-                    // @ts-ignore
                     userId: authUser.id,
-                    // @ts-ignore
                     folderId: folderId
                 }
             })

@@ -1,3 +1,5 @@
+// To check if data is a folderData or fileData, we are using this to distinguish  between folder and file array 
+
 interface FolderDataTableProps {
     User: {
         name: string;
@@ -23,7 +25,7 @@ interface FileDataTableProps {
     userId: string | null;
     folderId: string | null;
 }
-    
+
 export function isFolderData(data: FolderDataTableProps | FileDataTableProps | null): data is FolderDataTableProps {
-        return (data !== null && typeof (data as FileDataTableProps).url === 'undefined');
+    return (data !== null && typeof (data as FileDataTableProps).url === 'undefined');
 }

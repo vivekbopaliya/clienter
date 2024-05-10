@@ -4,7 +4,7 @@ import { getDataFromToken } from "@/lib/hooks/getDataFromToken"
 export async function POST(req:Request) {
     try {
         const body = await req.json()
-        const authUser = await getDataFromToken()
+        const authUser:any = await getDataFromToken()
 
         const parentFolderId = body.folderId
 
@@ -14,10 +14,10 @@ export async function POST(req:Request) {
         }
 
         if(!parentFolderId) {
+            // Create the folder on homepage, if there is no folderId given
            await db.folder.create({
                 data: {
                     name: body.name,
-                    // @ts-ignore
                     userId: authUser.id!
                 }
             })
@@ -26,7 +26,6 @@ export async function POST(req:Request) {
             await db.folder.create({
                 data: {
                     name: body.name,
-                    // @ts-ignore
                     userId: authUser.id!,
                     parentFolderId: parentFolderId
                 }
