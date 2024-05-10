@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import bcrypt from 'bcrypt';
 import jwt from 'jwt-simple';
 import { cookies } from 'next/headers'
+import { setCookie } from "cookies-next";
 
 export  async function POST(req:Request) {
     try {
@@ -42,6 +43,7 @@ export  async function POST(req:Request) {
             httpOnly: true,
             path: '/',
           })
+         
        return new Response('User has been login successfully.', {status: 200})
     } catch (error:any) {
         if(error instanceof ZodError) {

@@ -24,14 +24,14 @@ export async function POST(req: Request) {
 
         const cloudinary: any = await uploadImage(file)
 
-
+        console.log(cloudinary)
         if (!folderId) {
             await db.file.create({
                 data: {
                     name: file.name,
                     size: KBFormat,
                     url: cloudinary.secure_url,
-                    public_id: cloudinary.public_id,
+                    public_id: cloudinary.url,
                     // @ts-ignore
                     userId: authUser.id
                 }
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
                     name: file.name,
                     size: KBFormat,
                     url: cloudinary.secure_url,
-                    public_id: cloudinary.public_id,
+                    public_id: cloudinary.url,
                     // @ts-ignore
                     userId: authUser.id,
                     // @ts-ignore

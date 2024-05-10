@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import Link from 'next/link';
-import { File, Folder, FolderInput,  MoreHorizontal } from 'lucide-react';
+import { File, Folder, FolderInput,  Loader2,  MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -71,7 +71,7 @@ type dialogStateType = 'RENAME' | 'DELETE' | 'MOVE' | ''
 
 const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files?: FileDataTableProps[] }) => {
 
-    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps | []>([])
+    const [allFolders, setAllFolders] = React.useState<FolderDataTableProps[] | []>([])
 
     const [dialogState, setDialogState] = React.useState<dialogStateType>('')
     const [focusedData, setFocusedData] = React.useState<FolderDataTableProps | FileDataTableProps | null>(null)
@@ -81,11 +81,14 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
 
     const router = useRouter()
 
-    const getAllFolders = async () => {
+ 
+
+    const {mutate: getAllFolders, isLoading: FoldersLoading} = useMutation({
+        mutationFn: async() => {
         const res = await axios.get('/api/folder/fetch')
         setAllFolders(res.data)
-    }
-
+        }
+    })
 
     // Rename folder or file
     const { mutate: handleRename, isLoading: renameLoading } = useMutation({
@@ -177,10 +180,8 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
         }
     })
 
-
     return (
         <div className='p-2'>
-
             <section>
                 <Dialog>
                     <Table>
@@ -336,10 +337,10 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                         }
                         {dialogState === 'MOVE' && (
                             <div className='grid grid-cols-2'>
-                                <Button variant={'outline'} className='w-full' onClick={() => handleMoveFiles('')}>
+                                {!FoldersLoading && <Button variant={'outline'} className='w-full' onClick={() => handleMoveFiles('')}>
                                     Move to home
-                                </Button>
-                                {/* @ts-ignore */}
+                                </Button>}
+                                {FoldersLoading && <Loader2 className='animate-spin h-6 w-6'/>}
                                 {allFolders?.map((folder: any) => (
                                     <div className='flex w-full justify-start ' key={folder.id}>
                                         <Button variant={'outline'} className='flex gap-2 w-full justify-start text-start' onClick={() => handleMoveFiles(folder?.id)}>
@@ -367,6 +368,9 @@ const DataTable = ({ folders, files }: { folders?: FolderDataTableProps[], files
                             }                  </DialogFooter>
                     </DialogContent>}
                 </Dialog>
+
+            {(folders?.length === 0 && files?.length ===0 ) && <h2 className='p-5 flex justify-center items-center'>There is no file or folder here.</h2>}
+
 
             </section>
         </div>

@@ -120,12 +120,24 @@ const Sidebar = () => {
         }
     })
 
-    const handleSignOut = () => {
+  const {mutate: handleSignOut, isLoading:SignOutLoading} = useMutation({
+    mutationFn: async() => {
+        await axios.post('/api/signout')
+    },
+    onError: (error:any) => {
+        if(error instanceof AxiosError) {
+            if(error.response?.status === 401){
+                return toast.error('You are not logged in.')
+            }
+            return toast.error('You could not sign out, please try again.')
+        }
+    },onSuccess: () => {
         route.push('/')
-
+        toast.success('You are signed out.')
     }
+  })
     return (
-        <div className='sm:min-h-screen min-h-fit sm:w-fit w-screen flex sm:flex-col  sm:justify-start justify-between  sm:items-start items-center   sm:px-0 px-5'>
+        <div className='sm:h-screen min-h-fit sm:w-fit w-screen flex sm:flex-col  sm:justify-start justify-between  sm:items-start items-center sm:gap-2 gap-0  sm:px-0 px-5'>
             <Dialog>
 
                 <section>
@@ -194,7 +206,7 @@ const Sidebar = () => {
                                         } px-4 py-2 rounded-md text-gray-800`}
                                 >
                                     <span id="fileName" className="truncate">
-                                        {file !== null ? file?.name : ""}
+                                        {file !== null ? file?.name : "No file selected."}
                                     </span>
                                 </span>
                             </div>
@@ -227,9 +239,8 @@ const Sidebar = () => {
                     }
                 </DialogContent>}
             </Dialog>
+            <Button variant={'destructive'} onClick={() => handleSignOut()} isLoading={SignOutLoading}>Sign out</Button>
 
-            <Button className='my-3' variant={'destructive'} 
-            onClick={handleSignOut}>Sign out</Button>
         </div>
     )
 }

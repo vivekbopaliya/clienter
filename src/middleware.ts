@@ -20,6 +20,7 @@ export const tokenAuthMiddleware = async(req: any) => {
   if (!decoded) {
     return NextResponse.redirect(new URL('/', req.url))
   }
+ 
 
   req.user = decoded.payload;
 

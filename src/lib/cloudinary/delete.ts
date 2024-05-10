@@ -13,6 +13,7 @@ export const deleteImage = async (public_id: string) => {
                 }
             )
         })
+        
 
     } catch (error) {
         console.log(error)
